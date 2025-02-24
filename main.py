@@ -9,10 +9,10 @@ mlmodel = torch.load('pneumonia_detection_model.pth', map_location=torch.device(
 # Define the image preprocessing pipeline
 def preprocess_image(image):
     transform = transforms.Compose([
-        transforms.Resize((224, 224)),  # 
+        transforms.Resize((224, 224)),  # Resize to match model input size
         transforms.ToTensor(),          # Convert image to tensor
-        transforms.Lambda(lambda x: x.repeat(3, 1, 1)),  
-        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])  
+        transforms.Lambda(lambda x: x.repeat(3, 1, 1)),  # Repeat grayscale channel to create 3 channels
+        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])  # Normalize (adjust based on training data)
     ])
     return transform(image).unsqueeze(0)  # Add batch dimension
 
@@ -34,7 +34,8 @@ if uploaded_file is not None:
     # Make prediction
     with torch.no_grad():
         output = mlmodel(input_tensor)
-        prediction = torch.sigmoid(output).item()  
+        prediction = torch.sigmoid(output).item()  # Assuming binary classification with sigmoid activation
+
     # Display the result
     threshold = 0.5  # Adjust threshold as needed
     if prediction > threshold:
